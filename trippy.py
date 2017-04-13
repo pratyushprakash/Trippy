@@ -5,9 +5,10 @@ from bottle import Bottle, request, debug
 
 access_token = 'XL7BFW47QBDKM5T6KE47KXA2TNQYLPBN'
 # Messenger API parameters
-FB_PAGE_TOKEN = os.environ.get('FB_PAGE_TOKEN')
+FB_PAGE_TOKEN = 'EAAbVZBwxcNqMBAPO34udy542bZCXSlHhgXXae3Am0rokHcWrWIF95DWbtijwJ52ldUm1NJVPZCLZCZAZAIPiQ0P4LFGtsYxSexFbvmhDMpJTZCBzErKKxOWmDkML4hKNaZAIEygibdR17g7nlZB9fboKoCokDLB4NkZAFadVdOy7prkAZDZD'
+
 # A user secret to verify webhook get request.
-FB_VERIFY_TOKEN = os.environ.get('FB_VERIFY_TOKEN')
+FB_VERIFY_TOKEN = 'sample_verify_token'
 
 # Setup Bottle Server
 debug(True)
