@@ -84,6 +84,9 @@ def send(request, response):
     text = response['text']
     # send message
     fb_message(fb_id, text)
+
+def send2(requests, response):
+    print(response['text'].decode('utf-8'))
     
 def searchTransport(request):
     
@@ -164,7 +167,7 @@ def searchHotels(request):
     return context
 
 actions = {
-    'send': send,
+    'send': send2,
     'searchTransport': searchTransport,
     'searchHotels': searchHotels
 }
@@ -173,4 +176,5 @@ client = Wit(access_token=access_token, actions=actions)
 
 if __name__ == '__main__':
     # Run Server
-    app.run(host='0.0.0.0', port=argv[1])
+    #app.run(host='0.0.0.0', port=argv[1])
+    client.interactive()

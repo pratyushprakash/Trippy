@@ -62,9 +62,9 @@ def searchFlight(source, destination, datetime):
     dateda = "&dateofdeparture=%d" % DOD
     URL = BASE + "search/" + "?format=json" + "&source=%s" % codesource + "&destination=%s" % codedest + dateda + '&app_id=' + APP_ID + '&app_key=' + APP_KEY + '&seatingclass=E&adults=1&children=0&infants=0&counter=100'
     data = requests.get(URL).json()
-    print(str(URL))
+    #print(str(URL))
     data = data['data']['onwardflights'][0]['CINFO']
-    print('DOD is :'+str(DOD) + 'And the codes are :' + codesource + " "+ codedest)
+    #print('DOD is :'+str(DOD) + 'And the codes are :' + codesource + " "+ codedest)
     url = 'https://www.goibibo.com/flights/' + data
     
     return url
@@ -86,7 +86,7 @@ def search_hotels(location, check_in_date, check_out_date):
     with open('city_list.csv', 'r') as csvfile:
         data = csv.reader(csvfile)
         for row in data:
-            if location.lower() == row[0].lower():
+            if str(location.lower()) == str(row[0].lower()):
                 city_id = row[1]
 
     base_url = 'https://www.goibibo.com/hotels/find-hotels-in-' + location.lower() + '/' + city_id + '/' + city_id
