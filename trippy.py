@@ -1,11 +1,14 @@
-from sys import argv
 from wit import Wit
-from utility import ifsource, ifdestination, ifdatetime, iftransport, ifcheckin_checkout, searchFlight, searchBus , search_hotels
+from utility import entityChecker, findTransport, findHotels
 from bottle import Bottle, request, debug
+import requests
 
 access_token = 'XL7BFW47QBDKM5T6KE47KXA2TNQYLPBN'
 # Messenger API parameters
-FB_PAGE_TOKEN = 'EAAbVZBwxcNqMBAPO34udy542bZCXSlHhgXXae3Am0rokHcWrWIF95DWbtijwJ52ldUm1NJVPZCLZCZAZAIPiQ0P4LFGtsYxSexFbvmhDMpJTZCBzErKKxOWmDkML4hKNaZAIEygibdR17g7nlZB9fboKoCokDLB4NkZAFadVdOy7prkAZDZD'
+FB_PAGE_TOKEN = 'EAAbVZBwxcNqMBAPO34udy542bZCXSlHhgX'
+'Xae3Am0rokHcWrWIF95DWbtijwJ52ldUm1NJVPZCLZCZAZAIPiQ0'
+'P4LFGtsYxSexFbvmhDMpJTZCBzErKKxOWmDkML4hKNaZAIEygibdR'
+'17g7nlZB9fboKoCokDLB4NkZAFadVdOy7prkAZDZD'
 
 # A user secret to verify webhook get request.
 FB_VERIFY_TOKEN = 'sample_verify_token'
@@ -85,25 +88,29 @@ def send(request, response):
     # send message
     fb_message(fb_id, text)
 
+
 def send2(requests, response):
     print(response['text'].decode('utf-8'))
-    
+
+
 def searchTransport(request):
-    
+
     context = request['context']
     entities = request['entities']
 
-    source = ifsource(entities)
-    destination = ifdestination(entities)
-    datetime = ifdatetime(entities)
-    transport_type = iftransport(entities)
+    checker = entityChecker(entities)
 
+    source = checker.ifsource(entities)
+    destination = checker.ifdestination(entities)
+    datetime = checker.ifdatetime(entities)
+    transport_type = checker.iftransport(entities)
+    transportHelper = findTransport(source, destination, datetime)
     if source and destination and datetime:
 
         if transport_type == 'flights':
-            url = searchFlight(source, destination, datetime)
+            url = transportHelper.searchFlight()
         elif transport_type == 'buses':
-            url = searchBus(source, destination, datetime)
+            url = transportHelper.searchBus()
         context['transportList'] = url
         try:
             del context['missingDateTime']
@@ -126,18 +133,21 @@ def searchTransport(request):
             del context['transportList']
         except:
             pass
-   # print(context)
+    # print(context)
     return context
+
 
 def searchHotels(request):
     context = request['context']
     entities = request['entities']
-    
-    check_in,check_out = ifcheckin_checkout(entities)
-    location = ifsource(entities)
+
+    checker = entityChecker(entities)
+
+    check_in, check_out = checker.ifcheckin_checkout(entities)
+    location = checker.ifsource(entities)
 
     if check_in and check_out and location:
-        url = search_hotels(location,check_in,check_out)
+        url = findHotels(location, check_in, check_out).search_hotels()
         context['hotelList'] = url
 
         try:
@@ -163,8 +173,9 @@ def searchHotels(request):
             del context['missingLocation']
         except:
             pass
-        
+
     return context
+
 
 actions = {
     'send': send2,
@@ -176,5 +187,5 @@ client = Wit(access_token=access_token, actions=actions)
 
 if __name__ == '__main__':
     # Run Server
-    #app.run(host='0.0.0.0', port=argv[1])
+    # app.run(host='0.0.0.0', port=argv[1])
     client.interactive()
