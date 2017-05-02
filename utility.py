@@ -1,14 +1,36 @@
 import requests
 import csv
-from iata_codes import IATACodesClient
 
-IATA_KEY = 'c5b516cf-9453-4a95-a751-02168bd6995f'
 APP_ID = 'a3649501'
 APP_KEY = '4ef08768f5a9234ce7262fdea9401808'
 BASE = "http://developer.goibibo.com/api/"
 auth = {'app_id': APP_ID, 'app_key': APP_KEY}
 
-iataClient = IATACodesClient(IATA_KEY)
+
+class csvParser(object):
+    def __init__(self, filename):
+        self.filename = filename
+
+    def getData(self):
+        with open(self.filename, 'r') as csvfile:
+            data = csv.reader(csvfile)
+        return data
+
+    def getCityID(self, city):
+        with open(self.filename, 'r') as csvfile:
+            data = csv.reader(csvfile)
+            for row in data:
+                if(str(city.lower()) == str(row[0].lower())):
+                    return row[1]
+        return None
+
+    def getAirportCode(self, city):
+        with open(self.filename, 'r') as csvfile:
+            data = csv.reader(csvfile)
+            for row in data:
+                if(str(city.lower()) == str(row[2].lower())):
+                    return row[4]
+        return None
 
 
 class entityChecker(object):
@@ -16,7 +38,7 @@ class entityChecker(object):
         self.entities = entities
 
     def ifsource(self, entity='location'):
-        print(self.entities)
+        # print(self.entities)
         try:
             return self.entities['location'][0]['value']
         except:
@@ -41,12 +63,12 @@ class entityChecker(object):
             return None
 
     def ifcheckin_checkout(self, entity='datetime'):
-        if str(entity) not in dict(self.entities).keys():
-            return None
+        # print(self.entities)
         try:
-            val = (self.entities[entity][0]['from']['value'],
-                   self.entities[entity][0]['to']['value'])
+            val = (self.entities['datetime'][0]['from']['value'],
+                   self.entities['datetime'][0]['to']['value'])
         except:
+            print('EXECPTOIN')
             return (None, None)
         if not val:
             return (None, None)
@@ -66,8 +88,9 @@ class findTransport(object):
         self.datetime = datetime
 
     def searchFlight(self):
-        codesource = iataClient.get(name=self.source)[0]['code']
-        codedest = iataClient.get(name=self.destination)[0]['code']
+        parser = csvParser('full_codes.csv')
+        codesource = parser.getAirportCode(self.source)
+        codedest = parser.getAirportCode(self.destination)
         DOD = self.datetime[0:4] + self.datetime[5:7] + self.datetime[8:10]
         DOD = int(DOD)
         dateda = "&dateofdeparture=%d" % DOD
@@ -94,23 +117,6 @@ class findTransport(object):
               self.source + '-' + self.destination + '-' + DOD + \
               '---0-0-' + src_voyager_id + '-' + dest_voyager_id
         return url
-
-
-class csvParser(object):
-    def __init__(self, filename):
-        self.filename = filename
-
-    def getData(self):
-        with open(self.filename, 'r') as csvfile:
-            data = csv.reader(csvfile)
-        return data
-
-    def getCityID(self, city):
-        data = self.getData()
-        for row in data:
-            if(str(city.lower()) == str(row[0].lower())):
-                return row[1]
-        return None
 
 
 class findHotels(object):
