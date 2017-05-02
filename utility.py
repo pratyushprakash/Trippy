@@ -2,7 +2,7 @@ import requests
 import csv
 from iata_codes import IATACodesClient
 
-IATA_KEY = 'fe8ab715-e164-4262-a508-3e9b5db940df'
+IATA_KEY = 'c5b516cf-9453-4a95-a751-02168bd6995f'
 APP_ID = 'a3649501'
 APP_KEY = '4ef08768f5a9234ce7262fdea9401808'
 BASE = "http://developer.goibibo.com/api/"
@@ -16,39 +16,32 @@ class entityChecker(object):
         self.entities = entities
 
     def ifsource(self, entity='location'):
-        if entity not in self.entities:
+        print(self.entities)
+        try:
+            return self.entities['location'][0]['value']
+        except:
             return None
-        val = self.entities[entity][0]['value']
-        if not val:
-            return None
-        return val['value'] if isinstance(val, dict) else val
 
     def ifdestination(self, entity='location'):
-        if entity not in self.entities:
+        try:
+            return self.entities['location'][1]['value']
+        except:
             return None
-        val = self.entities[entity][1]['value']
-        if not val:
-            return None
-        return val['value'] if isinstance(val, dict) else val
 
     def iftransport(self, entity='transport'):
-        if entity not in self.entities:
+        try:
+            return self.entities['transport'][0]['value']
+        except:
             return None
-        val = self.entities[entity][0]['value']
-        if not val:
-            return None
-        return val['value'] if isinstance(val, dict) else val
 
     def ifdatetime(self, entity='datetime'):
-        if entity not in self.entities:
+        try:
+            return self.entities['datetime'][0]['value']
+        except:
             return None
-        val = self.entities[entity][0]['value']
-        if not val:
-            return None
-        return val['value'] if isinstance(val, dict) else val
 
     def ifcheckin_checkout(self, entity='datetime'):
-        if entity not in self.entities:
+        if str(entity) not in dict(self.entities).keys():
             return None
         try:
             val = (self.entities[entity][0]['from']['value'],
